@@ -1,0 +1,31 @@
+// Insertion Sort
+#include <stdio.h>
+#define MAX 100
+int main()
+{
+    int a[MAX], i, j, n, temp;
+    printf("Enter the number of elements:  ");
+    scanf("%d", &n);
+
+    for (i = 0; i < n; i++)
+    {
+        printf("Enter element %d:  ", i + 1);
+        scanf("%d", &a[i]);
+    }
+    // Insertion Sort
+    for (i = 1; i < n; i++)
+    {
+        temp = a[i];
+
+        for (j = i - 1; j >= 0 && temp < a[j]; j--)
+            a[j + 1] = a[j];
+
+        a[j + 1] = temp;
+    }
+    // Print list
+    printf("Sorted Array is : \n");
+    for (i = 0; i < n; i++)
+        printf("%d ", a[i]);
+    printf("\n");
+    return 0;
+}
