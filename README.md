@@ -1,4 +1,4 @@
-# College-assignments
+# College Assignments
 
 Repository containing all Programming related lab assignments (college stuff).
 
