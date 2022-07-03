@@ -28,9 +28,13 @@ void SumOfSub(int w[], int x[], int S, int k, int r)
         return;
     x[k] = 1;
     if (S + w[k] == m) // If Subset gives solution, print Subset
+    {
         printSoln(x, w, k);
+    }
     else if (S + w[k] + w[k + 1] <= m) // Left subtree
+    {
         SumOfSub(w, x, S + w[k], k + 1, r);
+    }
     if ((S + r - w[k] >= m) && (S + w[k + 1] <= m)) // Right subtree
     {
         x[k] = 0;

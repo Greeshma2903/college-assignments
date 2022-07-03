@@ -1,277 +1,109 @@
 #include <stdio.h>
-#include<stdbool.h>
-
-int stepcount = 0;
-
-struct PW
+#include <stdlib.h>
+#define MAX 130
+#define o_max 7
+int size;
+struct tuple
 {
-    float p;
-    float w;
+    int tp;
+    int tw;
+    int obj[o_max];
 };
 
-bool search(int L, int H, float pp, float ww, struct PW pair[])
+void purge(struct tuple S[MAX])
 {
-    int low = L;
-    int high = H;
-    stepcount += 2; // for assignments
-    while (low <= high)
+    int i, j;
+    for (i = 0; i < size; i++)
     {
-        stepcount++; // for while loop condition
-        int mid = (low + high) / 2;
-        stepcount++; // for assignment
-        stepcount++; // for if condition
-        if (pair[mid].p == pp && pair[mid].w == ww)
+        for (j = 0; j < size; j++)
         {
-            stepcount++; // for return
-            return true;
+            if (S[i].tp < S[j].tp && S[i].tw > S[j].tw)
+            {
+                S[i].tp = S[i].tw = -1;
+            }
         }
-        else if (pair[mid].w < ww)
+    }
+}
+void knapsack(int m, int n, int p[n], int w[n])
+{
+    struct tuple S[MAX];
+    S[0].tw = 0, S[0].tp = 0;
+    int i, j, k, l;
+    for (i = 0; i < n; i++)
+        S[0].obj[i] = 0;
+    size = 1;
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0, k = size; j < size; j++, k++)
         {
-            stepcount++; // for else if condition
-            low = mid + 1;
-            stepcount++; // for assignment
+            if (S[j].tw == -1)
+            {
+                continue;
+            }
+            S[k].tw = S[j].tw + w[i];
+            if (S[k].tw > m)
+            {
+                S[k].tw = S[k].tp = -1;
+                continue;
+            }
+            S[k].tp = S[j].tp + p[i];
+            for (l = 0; l < n; l++)
+                S[k].obj[l] = S[j].obj[l];
+            S[k].obj[i] += 1;
+        }
+        size = size * 2;
+    }
+    purge(S);
+    int max_profit = -1, max_weight = -1, index;
+    for (i = 0; i < size; i++)
+    {
+        if (S[i].tw < max_weight)
+        {
+            continue;
+        }
+        else if (S[i].tw > max_weight)
+        {
+            max_weight = S[i].tw, max_profit = S[i].tp;
+            index = i;
         }
         else
         {
-            high = mid - 1;
-            stepcount++; // for assignment
-        }
-    }
-    stepcount++; // for last while loop condition
-    stepcount++; // for return
-    return false;
-}
-void Traceback(float p[], float w[], struct PW pair[], int x[], int m, int n, int b[])
-{
-    int j;
-    int last = b[n + 1] - 1;
-    float pp = pair[last].p;
-    float ww = pair[last].w;
-    int k = n;
-    stepcount += 4; // for assignments
-    while (pp > 0 && ww > 0)
-    {
-        stepcount++; // for while loop condition
-        bool f = true;
-        stepcount++; // for assignment
-        for (j = k; j >= 0; j--)
-        {
-            stepcount++; // for for loop condition
-            f = search(b[j], b[j + 1] - 1, pp, ww, pair);
-            stepcount++; // for assignment
-            stepcount++; // for if conditionif(!f)
+            if (S[i].tp > max_profit)
             {
-                stepcount++; // for if condition
-                if (j != n)
-                {
-                    x[j + 1] = 1;
-                    pp = pp - p[j + 1];
-                    ww = ww - w[j + 1];
-                    stepcount += 3; // for assignments
-                }
-                else
-                {
-                    x[j] = 1;
-                    pp = pp - p[j];
-                    ww = ww - w[j];
-                    stepcount += 3; // for assignment
-                }
-                k = j;
-                stepcount++; // for assignment
-                stepcount++; // for break
-                break;
+                max_profit = S[i].tp, index = i;
             }
         }
-        stepcount++; // for last for loop condition
     }
-    stepcount++; // for last while loop condition
-    printf("\nThe resultant vector is :");
-    stepcount++; // for cout statement
-    for (int i = 1; i <= n; i++)
+    printf("\n\nMax profit: %d\nBag filled: %d\nObjects chosen: (", max_profit, max_weight);
+    for (i = 0; i < n; i++)
+        printf("x[%d]  ", i + 1);
+    printf("): (");
+    for (i = 0; i < n; i++)
     {
-        stepcount++; // for for loop condition
-        printf("%d", x[i]);
-        stepcount++; // for cout statements
-    }
-    stepcount++; // for last for loop condition
-    printf("\n");
-    stepcount++; // for cout statement
-}
-
-int largest(struct PW pair[], float w[], int t, int h, int i, int m)
-{
-    int low = t;
-    int high = h;
-    stepcount += 2; // for assignments
-    int ans;
-    while (low <= high)
-    {
-        stepcount++; // for while loop condition
-        int mid = (low + high) / 2;
-        stepcount++; // for assignment
-        stepcount++; // for if condition
-        if (pair[mid].w + w[i] <= m)
-        {
-            ans = mid;
-            low = mid + 1;
-            stepcount += 2; // for assignments
-        }
+        if (S[index].obj[i] != 1)
+            printf("%d  ", 0);
         else
-        {
-            high = mid - 1;
-            stepcount++; // for assignment
-        }
+            printf("%d  ", S[index].obj[i]);
     }
-    stepcount++; // for last while condition
-    stepcount++; // for return
-    return ans;
-}
-
-void Dknap(float p[], float w[], int x[], int n, int m)
-{
-    struct PW pair[100];
-    int b[n + 1];
-    // S0
-    b[0] = 1;
-    pair[1].p = 0.0;
-    pair[1].w = 0.0;
-    int t = 1, h = 1; // start and end of s0
-    stepcount += 4;   // for assignments
-    b[1] = 2;
-    int next = 2;
-    stepcount += 2; // for assignment
-    for (int i = 1; i <= n; i++)
-    {
-        stepcount++; // for for loop condition
-        // generate si
-        int k = t;
-        int u = largest(pair, w, t, h, i, m);
-        stepcount += 2; // for assignments
-        for (int j = t; j <= u; j++)
-        {
-            stepcount++; // for for loop condition
-            // generate Si-1 and merge
-            int pp = pair[j].p + p[i];
-            int ww = pair[j].w + w[i];
-            stepcount += 2; // for assignment
-            //(pp,ww) is next element in sI-1
-            while ((k <= h) && (pair[k].w <= ww))
-            {
-                stepcount++; // for while loop condition
-                pair[next].p = pair[k].p;
-                pair[next].w = pair[k].w;
-                next++;
-                k++;
-                stepcount += 4; // for assignment}
-                stepcount++;    // for while loop condition
-                stepcount++;    // for if condition
-                if ((k <= h) && (pair[k].w == ww))
-                {
-                    stepcount++; // for if condition
-                    if (pp < pair[k].p)
-                    {
-                        pp = pair[k].p;
-                        stepcount++; // for assignment
-                    }
-                    k++;
-                    stepcount++; // for assignment
-                }
-                stepcount++; // for if condition
-                if (pp > pair[next - 1].p)
-                {
-                    pair[next].p = pp;
-                    pair[next].w = ww;
-                    next++;
-                    stepcount += 3; // for assignment
-                }
-                while ((k <= h) && (pair[next].p <= pair[next - 1].p))
-                {
-                    stepcount++; // for while loop condition
-                    k++;
-                    stepcount++; // for assignment
-                }
-                stepcount++; // for last while loop condition
-            }
-            stepcount++; // for last for loop condition
-            // merge remaining terms
-            while (k <= h)
-            {
-                stepcount++; // for while loop condition
-                pair[next].p = pair[k].p;
-                pair[next].w = pair[k].w;
-                next++;
-                k++;
-                stepcount += 4; // for assignments
-            }
-            stepcount++; // for last while loop condition
-            // initialise S i+1
-            t = h + 1;
-            h = next - 1;
-            b[i + 1] = next;
-            stepcount += 3; // for assignments
-        }
-        stepcount++; // for last for loop condition
-        printf("Subsets: \n");
-        stepcount++; // for coutastatementfor(int i=0;i<=n;i++)
-        {
-            stepcount++; // for for loop condition
-            for (int j = b[i]; j <= b[i + 1] - 1; j++)
-            {
-                stepcount++; // for for loop condition
-                printf("( %d, %d)", pair[j].p, pair[j].w);
-                stepcount++; // for cout statements
-            }
-            stepcount++; // for last for loop condition
-            printf("\n");
-            stepcount++; // for cout statement
-        }
-        stepcount++; // for last for loop condition
-        Traceback(p, w, pair, x, m, n, b);
-    }
+    printf(")");
 }
 
 int main()
 {
-    int n, m;
-    printf("Enter no of items : ");
+    int n, m, i;
+    // Read inputs from user
+    printf("Enter number of elements: ");
     scanf("%d", &n);
-    stepcount += 2; // for cout and cin statements
-    float p[n + 1], w[n + 1];
-    printf("Enter profits and weight of item : \n");
-    stepcount++; // for cout statements
-    for (int i = 1; i <= n; i++)
-    {
-        stepcount++; // for for loop condition
-        scanf("%d %d", &p[i], &w[i]);
-        stepcount++; // for cin statements
-    }
-    stepcount++; // for last for loop condition
-    printf("Enter capacity of bag : ");
-    stepcount++; // for cout statement
+    printf("Enter size of knapsack bag: ");
     scanf("%d", &m);
-    stepcount++; // for cin statement
-    int x[n + 1];
-    for (int i = 0; i <= n + 1; i++)
-    {
-        stepcount++; // for for loop condition
-        x[i] = 0;
-        stepcount++; // for assignment
-    }
-    stepcount++; // for last for loop condition
-    Dknap(p, w, x, n, m);
-    float profit = 0, weight = 0;
-    for (int i = 1; i <= n; i++)
-    {
-        stepcount++; // for for loop condition
-        profit += (x[i] * p[i]);
-        weight += (x[i] * w[i]);
-        stepcount += 2; // for assignments
-    }
-    stepcount++; // for last for loop condition
-    printf("Maximum profit : %d", profit);
-    printf("Maximum weights occupied : %d", weight);
-    stepcount += 2; // for
-       // for cout statement
-    printf("\nStep counts: %d", stepcount);
-    return 0;
+    int p[n], w[n];
+    printf("Enter profits : ");
+    for (i = 0; i < n; i++)
+        scanf("%d", &p[i]);
+    printf("Enter weights : ");
+    for (i = 0; i < n; i++)
+        scanf("%d", &w[i]);
+
+    // Function call
+    knapsack(m, n, p, w);
 }

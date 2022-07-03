@@ -1,88 +1,98 @@
-#include <limits.h>
 #include <stdio.h>
-#include <stdbool.h>
+#include <conio.h>
+#define INFINITY 9999
+#define MAX 10
 
-int V;
-
-/* Function to find the vertex with minimum distance value, from
-the set of vertices not yet included in shortest path tree */
-int minDistance(int dist[], bool sptSet[])
+void dijkstra(int G[MAX][MAX], int n, int startnode)
 {
-    // Initialize min value
-    int min = INT_MAX, min_index;
 
-    for (int v = 0; v < V; v++)
-        if (sptSet[v] == false && dist[v] <= min)
-            min = dist[v], min_index = v;
+    int cost[MAX][MAX], distance[MAX], pred[MAX];
+    int visited[MAX], count, mindistance, nextnode, i, j;
+    // pred[] stores the predecessor of each node
+    // count gives the number of nodes seen so far
 
-    return min_index;
-}
-
-void printSolution(int dist[])
-{
-    printf("Vertex \t\t Distance from Source\n");
-    for (int i = 0; i < V; i++)
-        printf("%d \t\t %d\n", i, dist[i]);
-}
-
-void dijkstra(int graph[V][V], int src)
-{
-    /* Final Array */
-    int dist[V];    
-
-    /* sptSet[i] will be true if vertex 'i' is included in shortest
-    path tree or shortest distance from src to i is finalized */
-    bool sptSet[V]; 
-
-    /* Initially all distances are INFINITE and stpSet[] as false */
-    for (int i = 0; i < V; i++)
-        dist[i] = INT_MAX, sptSet[i] = false;
-
-    // Source Vertex
-    dist[src] = 0;
-
-    /* Find shortest path for all vertices */
-    for (int count = 0; count < V - 1; count++)
+    // create the cost matrix
+    for (i = 0; i < n; i++)
     {
-        /* Pick the minimum distance vertex from 
-        the set of vertices not yet picked. */
-        int u = minDistance(dist, sptSet);
-
-        // Mark the picked vertex as processed
-        sptSet[u] = true;
-
-        // Relaxation of adjacent vertices
-        for (int v = 0; v < V; v++)
-            if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX && dist[u] + graph[u][v] < dist[v])
-                dist[v] = dist[u] + graph[u][v];
-    }
-
-    printSolution(dist);
-}
-
-// MAIN FUNCTION  =========>
-int main()
-{
-    int i, j;
-
-    // Read the number of vertices
-    printf("\nEnter the number of vertices(< 9):");
-    scanf("%d", &V);
-
-    int graph[V][V];
-
-    // Read the values of Graph
-    printf("\nEnter the costs of vertices:(matrix form)");
-    for (i = 0; i < V; i++)
-    {
-        for (j = 0; j < V; j++)
+        for (j = 0; j < n; j++)
         {
-            scanf("%d", &graph[i][j]);
+            if (G[i][j] == 0)
+                cost[i][j] = INFINITY;
+            else
+                cost[i][j] = G[i][j];
         }
     }
+    // initialize pred[],distance[] and visited[]
+    for (i = 0; i < n; i++)
+    {
+        distance[i] = cost[startnode][i];
+        pred[i] = startnode;
+        visited[i] = 0;
+    }
+    distance[startnode] = 0;
+    visited[startnode] = 1;
+    count = 1;
+    while (count < n - 1)
+    {
+        mindistance = INFINITY;
+        // nextnode gives the node at minimum distance
+        for (i = 0; i < n; i++)
+        {
+            if (distance[i] < mindistance && !visited[i])
+            {
+                mindistance = distance[i];
+                nextnode = i;
+            }
+        }
+        // check if a better path exists through nextnode
+        visited[nextnode] = 1;
+        for (i = 0; i < n; i++)
+        {
+            if (!visited[i])
+                if (mindistance + cost[nextnode][i] < distance[i])
+                {
+                    distance[i] = mindistance + cost[nextnode][i];
+                    pred[i] = nextnode;
+                }
+        }
+        count++;
+    }
 
-    // Function call: Implement Dijkstra
-    dijkstra(graph, 0);
+    // print the path and distance of each node
+    printf("\nSolution Table: \nVertex\tDistance from Node %d\tPath\n", startnode);
+    for (i = 0; i < n; i++)
+    {
+        if (i != startnode)
+        {
+            printf("%d\t%d", i, distance[i]);
+            printf("\t\t\t%d", i);
+            j = i;
+            do
+            {
+                j = pred[j];
+                printf("<-%d", j);
+            } while (j != startnode);
+            printf("\n");
+        }
+    }
+}
+
+int main()
+{
+    int G[MAX][MAX], i, j, n, u;
+    printf("Enter no. of vertices:");
+    scanf("%d", &n);
+    printf("\nEnter the adjacency matrix:\n");
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j < n; j++)
+        {
+            scanf("%d", &G[i][j]);
+        }
+    }
+    printf("\nEnter the starting node:");
+    scanf("%d", &u);
+    dijkstra(G, n, u);
 
     return 0;
 }

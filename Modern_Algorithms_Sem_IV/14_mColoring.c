@@ -23,16 +23,15 @@ void NextValue(int x[], int n, int m, int k)
         int j;
         for (j = 1; j <= n; j++)
         {
-            /* checking if this color is distinct from adjacent colors 
+            /* checking if this color is distinct from adjacent colors
             if (k,j) is an edge and if adjacent vertex have same color */
-            if (G[k][j] != 0 && (x[k] == x[j]))  
+            if (G[k][j] != 0 && (x[k] == x[j]))
                 break;
         }
         if (j == n + 1) // new colour found
             return;
     } while (1);
 }
-
 
 void mColoring(int x[], int n, int m, int k)
 {
@@ -49,7 +48,7 @@ void mColoring(int x[], int n, int m, int k)
     } while (1);
 }
 
-// MAIN FUNCTION ===> 
+// MAIN FUNCTION ===>
 int main()
 {
     int n, m, i, j;
@@ -57,11 +56,13 @@ int main()
 
     printf("Enter number of vertices: ");
     scanf("%d", &n);
-    
+
     for (i = 1; i <= n; i++)
     {
         for (j = 1; j <= n; j++)
+        {
             G[i][j] = 0;
+        }
     }
     printf("\nEnter number of edges: ");
     scanf("%d", &edges);
@@ -73,15 +74,18 @@ int main()
         G[origin][dest] = 1;
         G[dest][origin] = 1;
     }
-    
+
     printf("\nEnter number of colors: ");
     scanf("%d", &m);
     int x[n + 1];
     for (i = 1; i <= n; i++)
+    {
         x[i] = 0;
+    }
 
     // Function call
     printf("\nThe Solutions are: \n");
     mColoring(x, n, m, 1);
+
     return 0;
 }
